@@ -11,7 +11,7 @@ import {
 const PUBLIC_PATHS = ['/login', '/aluno/login']
 const API_AUTH_PREFIX = '/api/auth'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Libera rotas públicas e endpoints de auth
