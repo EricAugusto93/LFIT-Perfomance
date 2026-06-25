@@ -11,12 +11,16 @@ import {
   Bell,
   FileText,
   LogOut,
+  Sun,
+  Moon,
+  Zap,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import { useTheme } from '@/components/ThemeProvider'
 import { cn } from '@/lib/utils'
 
-const BASE_NAV_ITEMS = [
+const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/alunos', label: 'Alunos', icon: Users },
   { href: '/biblioteca', label: 'Biblioteca', icon: Dumbbell },
@@ -28,6 +32,7 @@ const BASE_NAV_ITEMS = [
 export function AppSidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const { theme, toggle } = useTheme()
   const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
@@ -45,15 +50,31 @@ export function AppSidebar() {
   }
 
   return (
-    <aside className="flex h-screen w-60 shrink-0 flex-col border-r border-gray-200 bg-white">
-      {/* Logo */}
-      <div className="flex h-16 items-center border-b border-gray-200 px-6">
-        <span className="text-xl font-bold tracking-tight text-gray-900">LFit</span>
+    <aside className="relative flex h-screen w-[220px] shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar">
+
+      {/* ── Signature: ambient red neon glow from above the logo ── */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-20 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-primary/20 blur-3xl dark:bg-primary/25"
+      />
+
+      {/* ── Logo ───────────────────────────────────────────────── */}
+      <div className="relative z-10 flex h-[60px] shrink-0 items-center border-b border-sidebar-border px-5">
+        <div className="flex items-center gap-2.5">
+          {/* Badge with inner highlight — like backlit metal */}
+          <div className="relative flex h-7 w-7 items-center justify-center overflow-hidden rounded-lg bg-primary shadow-lg shadow-primary/40">
+            <Zap size={14} className="relative z-10 fill-primary-foreground stroke-primary-foreground" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/25 to-transparent" />
+          </div>
+          <span className="text-[15px] font-bold tracking-tight text-sidebar-foreground">
+            LFit
+          </span>
+        </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1 overflow-y-auto p-3">
-        {BASE_NAV_ITEMS.map(({ href, label, icon: Icon, badge }) => {
+      {/* ── Navigation ─────────────────────────────────────────── */}
+      <nav className="relative z-10 flex-1 space-y-0.5 overflow-y-auto p-2.5">
+        {NAV_ITEMS.map(({ href, label, icon: Icon, badge }) => {
           const active = pathname === href || pathname.startsWith(`${href}/`)
           const showBadge = badge && unreadCount > 0
           return (
@@ -61,16 +82,16 @@ export function AppSidebar() {
               key={href}
               href={href}
               className={cn(
-                'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                'flex items-center gap-3 rounded-md px-3 py-2 text-[13.5px] font-medium transition-all duration-150',
                 active
-                  ? 'bg-gray-100 text-gray-900'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  ? 'bg-primary text-primary-foreground shadow-md shadow-primary/30'
+                  : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
               )}
             >
-              <Icon size={18} />
-              <span className="flex-1">{label}</span>
+              <Icon size={16} className="shrink-0" />
+              <span className="flex-1 truncate">{label}</span>
               {showBadge && (
-                <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold text-white">
+                <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary-foreground/20 px-1 text-[10px] font-bold leading-none text-primary-foreground ring-1 ring-primary-foreground/30">
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
@@ -79,13 +100,27 @@ export function AppSidebar() {
         })}
       </nav>
 
-      {/* Logout */}
-      <div className="border-t border-gray-200 p-3">
+      {/* ── Footer ─────────────────────────────────────────────── */}
+      <div className="relative z-10 space-y-0.5 border-t border-sidebar-border p-2.5">
+        {/* Theme toggle */}
+        <button
+          onClick={toggle}
+          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-[13.5px] font-medium text-sidebar-foreground/60 transition-all duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        >
+          {theme === 'dark' ? (
+            <Sun size={16} className="shrink-0" />
+          ) : (
+            <Moon size={16} className="shrink-0" />
+          )}
+          <span>{theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}</span>
+        </button>
+
+        {/* Logout */}
         <button
           onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-[13.5px] font-medium text-sidebar-foreground/60 transition-all duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
         >
-          <LogOut size={18} />
+          <LogOut size={16} className="shrink-0" />
           Sair
         </button>
       </div>
