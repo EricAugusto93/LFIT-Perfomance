@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Zap } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { loginSchema, type LoginInput } from '@/lib/validations/auth.schema'
@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const next = searchParams.get('next') ?? '/dashboard'
@@ -38,80 +38,101 @@ export default function LoginPage() {
 
       if (!response.ok) {
         const error = await response.json()
-        toast.error(error.error ?? 'Erro ao fazer login')
+        toast.error(error.error ?? 'Credenciais inválidas')
         return
       }
 
       router.push(next)
       router.refresh()
     } catch {
-      toast.error('Erro de conexão. Tente novamente.')
+      toast.error('Erro de conexão. Verifique se o servidor está online.')
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">LFit</h1>
-          <p className="mt-1 text-sm text-gray-500">Sistema de Gestão para Personal Trainer</p>
+    <div className="w-full max-w-sm">
+      <div className="mb-8 text-center">
+        <div className="mb-3 flex justify-center">
+          <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-primary shadow-xl shadow-primary/40">
+            <Zap size={22} className="relative z-10 fill-primary-foreground stroke-primary-foreground" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/25 to-transparent" />
+          </div>
         </div>
-
-        <Card>
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-xl">Entrar</CardTitle>
-            <CardDescription>Use seu e-mail e senha para acessar o sistema</CardDescription>
-          </CardHeader>
-
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="email">E-mail</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="seu@email.com"
-                  autoComplete="email"
-                  {...register('email')}
-                />
-                {errors.email && (
-                  <p className="text-destructive text-xs">{errors.email.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="password">Senha</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
-                    autoComplete="current-password"
-                    className="pr-10"
-                    {...register('password')}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    tabIndex={-1}
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-                {errors.password && (
-                  <p className="text-destructive text-xs">{errors.password.message}</p>
-                )}
-              </div>
-
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
-                Entrar
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-foreground">LFit</h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-muted-foreground">Sistema de Gestão para Personal Trainer</p>
       </div>
+
+      <Card>
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-xl">Entrar</CardTitle>
+          <CardDescription>Use seu e-mail e senha para acessar o sistema</CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="email">E-mail</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="seu@email.com"
+                autoComplete="email"
+                {...register('email')}
+              />
+              {errors.email && (
+                <p className="text-destructive text-xs">{errors.email.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="password">Senha</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  className="pr-10"
+                  {...register('password')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="text-destructive text-xs">{errors.password.message}</p>
+              )}
+            </div>
+
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
+              Entrar
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 dark:bg-background">
+      <Suspense
+        fallback={
+          <div className="flex items-center gap-2 text-sm text-gray-400">
+            <Loader2 size={16} className="animate-spin" />
+            Carregando...
+          </div>
+        }
+      >
+        <LoginForm />
+      </Suspense>
     </div>
   )
 }

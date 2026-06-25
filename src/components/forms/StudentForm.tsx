@@ -95,14 +95,31 @@ export function StudentForm({ defaultValues, studentId }: StudentFormProps) {
         body: JSON.stringify(data),
       })
 
-      const json = await res.json()
-      if (!res.ok) throw new Error(json.error)
+      if (!res.ok) {
+        const json = await res.json()
+        throw new Error(json.error ?? 'Erro ao salvar')
+      }
 
+      const json = await res.json()
       toast.success(isEditing ? 'Aluno atualizado!' : 'Aluno cadastrado!')
       router.push(`/alunos/${json.data.id}`)
       router.refresh()
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Erro ao salvar aluno')
+    }
+  }
+
+  // Helper para onValueChange de Selects do base-ui (dispara null em deselect)
+  function selectHandler<T extends string>(
+    field: keyof CreateStudentInput,
+    fallback?: T
+  ) {
+    return (v: string | null) => {
+      if (v) {
+        setValue(field, v as never, { shouldValidate: true })
+      } else if (fallback) {
+        setValue(field, fallback as never, { shouldValidate: true })
+      }
     }
   }
 
@@ -115,20 +132,20 @@ export function StudentForm({ defaultValues, studentId }: StudentFormProps) {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4">
-            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-gray-100">
+            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-gray-100 dark:bg-muted">
               {photoPreview ? (
                 <>
                   <Image src={photoPreview} alt="Foto" fill className="object-cover" />
                   <button
                     type="button"
                     onClick={removePhoto}
-                    className="absolute right-0 top-0 rounded-full bg-red-500 p-0.5 text-white"
+                    className="absolute right-0 top-0 rounded-full bg-primary p-0.5 text-primary-foreground"
                   >
                     <X size={10} />
                   </button>
                 </>
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-gray-300">
+                <div className="flex h-full w-full items-center justify-center text-gray-300 dark:text-muted-foreground">
                   <Upload size={24} />
                 </div>
               )}
@@ -188,8 +205,8 @@ export function StudentForm({ defaultValues, studentId }: StudentFormProps) {
           <div className="space-y-1.5">
             <Label>Sexo</Label>
             <Select
-              defaultValue={defaultValues?.sex}
-              onValueChange={(v) => setValue('sex', v as CreateStudentInput['sex'])}
+              value={watch('sex') ?? ''}
+              onValueChange={selectHandler('sex')}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione" />
@@ -202,28 +219,17 @@ export function StudentForm({ defaultValues, studentId }: StudentFormProps) {
                 ))}
               </SelectContent>
             </Select>
+            {errors.sex && <p className="text-destructive text-xs">{(errors.sex as { message?: string }).message}</p>}
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="height">Altura (cm)</Label>
-            <Input
-              id="height"
-              type="number"
-              step="0.1"
-              placeholder="170"
-              {...register('height')}
-            />
+            <Input id="height" type="number" step="0.1" placeholder="170" {...register('height')} />
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="weight">Peso atual (kg)</Label>
-            <Input
-              id="weight"
-              type="number"
-              step="0.1"
-              placeholder="70.0"
-              {...register('weight')}
-            />
+            <Input id="weight" type="number" step="0.1" placeholder="70.0" {...register('weight')} />
           </div>
         </CardContent>
       </Card>
@@ -237,8 +243,8 @@ export function StudentForm({ defaultValues, studentId }: StudentFormProps) {
           <div className="space-y-1.5">
             <Label>Objetivo</Label>
             <Select
-              defaultValue={defaultValues?.objective}
-              onValueChange={(v) => setValue('objective', v as CreateStudentInput['objective'])}
+              value={watch('objective') ?? ''}
+              onValueChange={selectHandler('objective')}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione" />
@@ -251,13 +257,14 @@ export function StudentForm({ defaultValues, studentId }: StudentFormProps) {
                 ))}
               </SelectContent>
             </Select>
+            {errors.objective && <p className="text-destructive text-xs">{(errors.objective as { message?: string }).message}</p>}
           </div>
 
           <div className="space-y-1.5">
-            <Label>Status</Label>
+            <Label>Status *</Label>
             <Select
-              defaultValue={watch('status') ?? 'ACTIVE'}
-              onValueChange={(v) => setValue('status', v as CreateStudentInput['status'])}
+              value={watch('status') ?? 'ACTIVE'}
+              onValueChange={selectHandler('status', 'ACTIVE')}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -270,6 +277,7 @@ export function StudentForm({ defaultValues, studentId }: StudentFormProps) {
                 ))}
               </SelectContent>
             </Select>
+            {errors.status && <p className="text-destructive text-xs">{(errors.status as { message?: string }).message}</p>}
           </div>
         </CardContent>
       </Card>
@@ -286,7 +294,7 @@ export function StudentForm({ defaultValues, studentId }: StudentFormProps) {
               id="observations"
               rows={2}
               placeholder="Notas sobre o aluno..."
-              className="border-input w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
+              className="border-input w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-ring"
               {...register('observations')}
             />
           </div>
@@ -297,7 +305,7 @@ export function StudentForm({ defaultValues, studentId }: StudentFormProps) {
               id="physicalRestrictions"
               rows={2}
               placeholder="Restrições de movimento, limitações físicas..."
-              className="border-input w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
+              className="border-input w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-ring"
               {...register('physicalRestrictions')}
             />
           </div>
@@ -308,7 +316,7 @@ export function StudentForm({ defaultValues, studentId }: StudentFormProps) {
               id="pathologies"
               rows={2}
               placeholder="Doenças, lesões anteriores..."
-              className="border-input w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
+              className="border-input w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-ring"
               {...register('pathologies')}
             />
           </div>
