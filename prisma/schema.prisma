@@ -1,0 +1,423 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Sex {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum StudentObjective {
+  WEIGHT_LOSS
+  HYPERTROPHY
+  CONDITIONING
+  REHABILITATION
+  PERFORMANCE
+}
+
+enum StudentStatus {
+  ACTIVE
+  PAUSED
+  INACTIVE
+}
+
+enum MuscleGroup {
+  CHEST
+  BACK
+  SHOULDERS
+  BICEPS
+  TRICEPS
+  QUADRICEPS
+  HAMSTRINGS
+  CALVES
+  GLUTES
+  ABS
+}
+
+enum DifficultyLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum WorkoutDivision {
+  A
+  B
+  C
+  D
+  E
+  F
+}
+
+enum CommentType {
+  OBSERVATION
+  FEEDBACK
+  INJURY
+  ADAPTATION
+  DISCOMFORT
+}
+
+enum GoalType {
+  WEIGHT
+  BODY_FAT
+  MUSCLE_MASS
+  CIRCUMFERENCE
+}
+
+enum ScheduleEventType {
+  EVALUATION
+  WORKOUT_RENEWAL
+  CONSULTATION
+  AVAILABILITY
+}
+
+enum NotificationType {
+  EXPIRED_EVALUATION
+  EXPIRED_WORKOUT
+  NO_UPDATE
+  BIRTHDAY
+  PLAN_RENEWAL
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  phone        String?
+  photoUrl     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  students      Student[]
+  exercises     Exercise[]
+  workouts      Workout[]
+  comments      Comment[]
+  goals         Goal[]
+  scheduleEvents ScheduleEvent[]
+  notifications  Notification[]
+  payments       Payment[]
+
+  @@map("users")
+}
+
+model Student {
+  id                   String           @id @default(cuid())
+  trainerId            String
+  name                 String
+  photoUrl             String?
+  dateOfBirth          DateTime?
+  sex                  Sex?
+  height               Float?
+  weight               Float?
+  phone                String?
+  email                String?
+  passwordHash         String?
+  objective            StudentObjective?
+  observations         String?
+  physicalRestrictions String?
+  pathologies          String?
+  medications          String?
+  status               StudentStatus    @default(ACTIVE)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  trainer        User                @relation(fields: [trainerId], references: [id])
+  anamnesis      Anamnesis?
+  workouts       Workout[]
+  evaluations    PhysicalEvaluation[]
+  comments       Comment[]
+  goals          Goal[]
+  weightRecords  WeightRecord[]
+  loadRecords    LoadRecord[]
+  notifications  Notification[]
+  payments       Payment[]
+  scheduleEvents ScheduleEvent[]
+  evolutionPhotos EvolutionPhoto[]
+
+  @@index([trainerId])
+  @@index([status])
+  @@map("students")
+}
+
+model Anamnesis {
+  id                       String   @id @default(cuid())
+  studentId                String   @unique
+  mainObjective            String?
+  weightTrainingExperience String?
+  weeklyFrequency          Int?
+  healthIssues             String?
+  injuries                 String?
+  previousSurgeries        String?
+  medications              String?
+  dietaryRestrictions      String?
+  sleepHours               Int?
+  stressLevel              Int?
+  createdAt                DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@map("anamneses")
+}
+
+model Exercise {
+  id              String          @id @default(cuid())
+  trainerId       String?
+  name            String
+  muscleGroup     MuscleGroup
+  imageUrl        String?
+  videoUrl        String?
+  equipment       String?
+  difficultyLevel DifficultyLevel?
+  createdAt       DateTime        @default(now())
+
+  trainer          User?              @relation(fields: [trainerId], references: [id])
+  workoutExercises WorkoutExercise[]
+
+  @@index([muscleGroup])
+  @@index([trainerId])
+  @@map("exercises")
+}
+
+model Workout {
+  id          String          @id @default(cuid())
+  trainerId   String
+  studentId   String
+  name        String
+  division    WorkoutDivision
+  description String?
+  isActive    Boolean         @default(true)
+  expiresAt   DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  trainer   User              @relation(fields: [trainerId], references: [id])
+  student   Student           @relation(fields: [studentId], references: [id])
+  exercises WorkoutExercise[]
+  history   WorkoutHistory[]
+
+  @@index([studentId, isActive])
+  @@index([trainerId])
+  @@map("workouts")
+}
+
+model WorkoutExercise {
+  id           String   @id @default(cuid())
+  workoutId    String
+  exerciseId   String
+  sets         Int
+  reps         String
+  restTime     Int?
+  load         Float?
+  observations String?
+  order        Int
+  createdAt    DateTime @default(now())
+
+  workout     Workout      @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercise    Exercise     @relation(fields: [exerciseId], references: [id])
+  loadRecords LoadRecord[]
+
+  @@index([workoutId, order])
+  @@map("workout_exercises")
+}
+
+model WorkoutHistory {
+  id          String   @id @default(cuid())
+  workoutId   String
+  trainerId   String
+  description String
+  snapshot    Json
+  createdAt   DateTime @default(now())
+
+  workout Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+
+  @@map("workout_history")
+}
+
+model PhysicalEvaluation {
+  id                String   @id @default(cuid())
+  studentId         String
+  trainerId         String
+  date              DateTime
+  weight            Float?
+  height            Float?
+  bmi               Float?
+  bodyFatPercentage Float?
+  leanMass          Float?
+  muscleMass        Float?
+  notes             String?
+  createdAt         DateTime @default(now())
+
+  student      Student          @relation(fields: [studentId], references: [id])
+  measurements BodyMeasurement?
+  photos       EvolutionPhoto?
+
+  @@index([studentId, date])
+  @@map("physical_evaluations")
+}
+
+model BodyMeasurement {
+  id           String  @id @default(cuid())
+  evaluationId String  @unique
+  shoulder     Float?
+  chest        Float?
+  waist        Float?
+  abdomen      Float?
+  hip          Float?
+  rightArm     Float?
+  leftArm      Float?
+  rightThigh   Float?
+  leftThigh    Float?
+  rightCalf    Float?
+  leftCalf     Float?
+
+  evaluation PhysicalEvaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+
+  @@map("body_measurements")
+}
+
+model EvolutionPhoto {
+  id              String   @id @default(cuid())
+  evaluationId    String   @unique
+  studentId       String
+  frontUrl        String?
+  backUrl         String?
+  leftProfileUrl  String?
+  rightProfileUrl String?
+  createdAt       DateTime @default(now())
+
+  evaluation PhysicalEvaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  student    Student            @relation(fields: [studentId], references: [id])
+
+  @@map("evolution_photos")
+}
+
+model Comment {
+  id        String      @id @default(cuid())
+  studentId String
+  trainerId String
+  content   String
+  type      CommentType
+  createdAt DateTime    @default(now())
+
+  student Student @relation(fields: [studentId], references: [id])
+  trainer User    @relation(fields: [trainerId], references: [id])
+
+  @@index([studentId, createdAt])
+  @@map("comments")
+}
+
+model Goal {
+  id           String    @id @default(cuid())
+  studentId    String
+  trainerId    String
+  type         GoalType
+  targetValue  Float
+  currentValue Float?
+  deadline     DateTime?
+  achieved     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+
+  student Student @relation(fields: [studentId], references: [id])
+  trainer User    @relation(fields: [trainerId], references: [id])
+
+  @@map("goals")
+}
+
+model ScheduleEvent {
+  id          String            @id @default(cuid())
+  trainerId   String
+  studentId   String?
+  type        ScheduleEventType
+  title       String
+  description String?
+  startAt     DateTime
+  endAt       DateTime
+  createdAt   DateTime          @default(now())
+
+  trainer User     @relation(fields: [trainerId], references: [id])
+  student Student? @relation(fields: [studentId], references: [id])
+
+  @@index([trainerId, startAt])
+  @@map("schedule_events")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  trainerId String
+  studentId String?
+  type      NotificationType
+  message   String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  trainer User     @relation(fields: [trainerId], references: [id])
+  student Student? @relation(fields: [studentId], references: [id])
+
+  @@index([trainerId, read])
+  @@map("notifications")
+}
+
+model WeightRecord {
+  id         String   @id @default(cuid())
+  studentId  String
+  weight     Float
+  recordedAt DateTime
+  createdAt  DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@index([studentId, recordedAt])
+  @@map("weight_records")
+}
+
+model LoadRecord {
+  id                String   @id @default(cuid())
+  studentId         String
+  workoutExerciseId String
+  load              Float
+  reps              Int?
+  notes             String?
+  recordedAt        DateTime
+  createdAt         DateTime @default(now())
+
+  student         Student         @relation(fields: [studentId], references: [id])
+  workoutExercise WorkoutExercise @relation(fields: [workoutExerciseId], references: [id])
+
+  @@index([studentId, recordedAt])
+  @@map("load_records")
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  trainerId   String
+  studentId   String
+  amount      Float
+  status      PaymentStatus @default(PENDING)
+  dueDate     DateTime
+  paidAt      DateTime?
+  description String?
+  createdAt   DateTime      @default(now())
+
+  trainer User    @relation(fields: [trainerId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@index([trainerId, status])
+  @@map("payments")
+}
