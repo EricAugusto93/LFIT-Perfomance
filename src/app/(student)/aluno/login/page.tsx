@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import Image from 'next/image'
 import { toast } from 'sonner'
 import { loginSchema, type LoginInput } from '@/lib/validations/auth.schema'
 import { Button } from '@/components/ui/button'
@@ -45,7 +46,16 @@ function AlunoLoginForm() {
   return (
     <div className="w-full max-w-sm">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-white">LFit</h1>
+        <div className="mb-3 flex justify-center">
+          <Image
+            src="/logo.png"
+            alt="LFit Performance"
+            width={140}
+            height={140}
+            className="rounded-2xl shadow-2xl shadow-black/60"
+            priority
+          />
+        </div>
         <p className="mt-1 text-sm text-gray-400">Área do Aluno</p>
       </div>
 

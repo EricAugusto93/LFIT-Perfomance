@@ -13,8 +13,8 @@ import {
   LogOut,
   Sun,
   Moon,
-  Zap,
 } from 'lucide-react'
+import Image from 'next/image'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { useTheme } from '@/components/ThemeProvider'
@@ -59,17 +59,15 @@ export function AppSidebar() {
       />
 
       {/* ── Logo ───────────────────────────────────────────────── */}
-      <div className="relative z-10 flex h-[60px] shrink-0 items-center border-b border-sidebar-border px-5">
-        <div className="flex items-center gap-2.5">
-          {/* Badge with inner highlight — like backlit metal */}
-          <div className="relative flex h-7 w-7 items-center justify-center overflow-hidden rounded-lg bg-primary shadow-lg shadow-primary/40">
-            <Zap size={14} className="relative z-10 fill-primary-foreground stroke-primary-foreground" />
-            <div className="absolute inset-0 bg-gradient-to-b from-white/25 to-transparent" />
-          </div>
-          <span className="text-[15px] font-bold tracking-tight text-sidebar-foreground">
-            LFit
-          </span>
-        </div>
+      <div className="relative z-10 flex h-[72px] shrink-0 items-center justify-center border-b border-sidebar-border px-4">
+        <Image
+          src="/logo.png"
+          alt="LFit Performance"
+          width={120}
+          height={48}
+          className="object-contain"
+          priority
+        />
       </div>
 
       {/* ── Navigation ─────────────────────────────────────────── */}

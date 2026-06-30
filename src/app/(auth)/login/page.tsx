@@ -4,7 +4,8 @@ import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Eye, EyeOff, Loader2, Zap } from 'lucide-react'
+import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import Image from 'next/image'
 import { toast } from 'sonner'
 
 import { loginSchema, type LoginInput } from '@/lib/validations/auth.schema'
@@ -52,13 +53,16 @@ function LoginForm() {
   return (
     <div className="w-full max-w-sm">
       <div className="mb-8 text-center">
-        <div className="mb-3 flex justify-center">
-          <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-primary shadow-xl shadow-primary/40">
-            <Zap size={22} className="relative z-10 fill-primary-foreground stroke-primary-foreground" />
-            <div className="absolute inset-0 bg-gradient-to-b from-white/25 to-transparent" />
-          </div>
+        <div className="mb-2 flex justify-center">
+          <Image
+            src="/logo.png"
+            alt="LFit Performance"
+            width={160}
+            height={160}
+            className="rounded-2xl shadow-2xl shadow-black/40"
+            priority
+          />
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-foreground">LFit</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-muted-foreground">Sistema de Gestão para Personal Trainer</p>
       </div>
 
