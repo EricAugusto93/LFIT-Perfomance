@@ -150,7 +150,19 @@ function MetricChip({
 
 export default async function DashboardPage() {
   const session = await requireTrainerSession()
-  const { students, alerts, upcomingEvents } = await getDashboardData(session.sub)
+
+  // Retry automático: cold start do Prisma pode falhar na 1ª query
+  let data
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      data = await getDashboardData(session.sub)
+      break
+    } catch (err) {
+      if (attempt === 2) throw err
+      await new Promise((r) => setTimeout(r, 300))
+    }
+  }
+  const { students, alerts, upcomingEvents } = data!
 
   const totalAlerts = alerts.expiredEvaluations.length + alerts.expiredWorkouts.length
   const eventGroups = groupByDay(upcomingEvents)
