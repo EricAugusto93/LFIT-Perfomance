@@ -85,5 +85,8 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|public/).*)'],
+  // Exclui arquivos estáticos do public/ (png, jpg, svg, ico, etc.) além dos internos do Next.js
+  matcher: [
+    '/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico|woff2?|ttf|otf)$).*)',
+  ],
 }
