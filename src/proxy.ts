@@ -58,7 +58,8 @@ export async function proxy(request: NextRequest) {
 
   // Autenticado — controle de acesso por role
   if (payload) {
-    const isStudentArea = pathname.startsWith('/aluno')
+    // /aluno/ (com barra) = área do aluno | /alunos (plural) = gestão de alunos do trainer
+    const isStudentArea = pathname === '/aluno' || pathname.startsWith('/aluno/')
     const isTrainerArea = !isStudentArea && !PUBLIC_PATHS.some((p) => pathname.startsWith(p))
 
     if (isStudentArea && payload.role !== 'student') {
