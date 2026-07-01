@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { requireTrainerSession } from '@/lib/session'
 import { getMonthEvents, createEvent } from '@/services/schedule.service'
+import { withRetry } from '@/lib/with-retry'
 
 const SCHEDULE_EVENT_TYPES = ['EVALUATION', 'WORKOUT_RENEWAL', 'CONSULTATION', 'AVAILABILITY'] as const
 
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
     const year = parseInt(searchParams.get('year') ?? String(new Date().getFullYear()))
     const month = parseInt(searchParams.get('month') ?? String(new Date().getMonth() + 1))
 
-    const events = await getMonthEvents(session.sub, year, month)
+    const events = await withRetry(() => getMonthEvents(session.sub, year, month))
     return NextResponse.json({ data: events })
   } catch {
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 })

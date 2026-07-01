@@ -151,15 +151,15 @@ function MetricChip({
 export default async function DashboardPage() {
   const session = await requireTrainerSession()
 
-  // Retry automático: cold start do Prisma pode falhar na 1ª query
+  // Retry com backoff: cobre cold start do Prisma/Supabase pooler
   let data
-  for (let attempt = 1; attempt <= 2; attempt++) {
+  for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       data = await getDashboardData(session.sub)
       break
     } catch (err) {
-      if (attempt === 2) throw err
-      await new Promise((r) => setTimeout(r, 300))
+      if (attempt === 3) throw err
+      await new Promise((r) => setTimeout(r, attempt * 500))
     }
   }
   const { students, alerts, upcomingEvents } = data!
