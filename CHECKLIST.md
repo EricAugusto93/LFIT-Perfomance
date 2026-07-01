@@ -1,7 +1,7 @@
 # LFit — Checklist de Implementação
 
-> Marque cada item com `[x]` conforme for concluído.
-> Siga a ordem das etapas — cada uma é pré-requisito da próxima.
+> Atualizado em: 2026-06-30
+> Baseado na leitura real do código-fonte + estado do deploy em produção.
 
 ## Progresso Geral
 
@@ -11,314 +11,263 @@
 | 2 | Schema do Banco | ✅ Completo |
 | 3 | Autenticação | ✅ Completo |
 | 4 | Cadastro de Alunos | ✅ Completo |
-| 5 | Biblioteca de Exercícios | ✅ Completo |
+| 5 | Biblioteca de Exercícios | ✅ Completo (upload de imagem do exercício pendente) |
 | 6 | Gestão de Treinos | ✅ Completo |
 | 7 | Avaliação Física | ✅ Completo |
 | 8 | Evolução e Gráficos | ✅ Completo |
-| 9 | Dashboard | ✅ Completo |
-| 10 | Comentários e Acompanhamento | ⬜ Pendente |
-| 11 | Agenda | 🔶 Parcial (repository criado) |
-| 12 | Notificações | ⬜ Pendente |
+| 9 | Dashboard | ✅ Completo + redesign premium |
+| 10 | Comentários e Acompanhamento | ✅ Completo |
+| 11 | Agenda | ✅ Completo |
+| 12 | Notificações | ✅ Completo |
 | 13 | Área do Aluno | ✅ Completo |
 | 14 | Relatórios PDF | ✅ Completo |
-| 15 | Sistema de Metas | ⬜ Pendente |
-| 16 | Anamnese | ⬜ Pendente |
-| 17 | Controle Financeiro | ⬜ Opcional |
-| 18 | IA para Evolução | ⬜ Opcional |
-| — | Infraestrutura & Deploy | 🔶 Parcial |
+| 15 | Sistema de Metas | ✅ Completo |
+| 16 | Anamnese | ✅ Completo |
+| 17 | Controle Financeiro | ⚪ Opcional — schema pronto, CRUD pendente |
+| 18 | IA para Evolução | ⚪ Opcional — não iniciado |
+| — | Design & UX | ✅ Dark/Light + vermelho + logo + redesigns |
+| — | Deploy & Infra | ✅ Vercel + Supabase + RLS + Índices |
+| — | Cloudinary (uploads) | 🟡 Credenciais pendentes |
 
-**10 de 18 etapas concluídas. Supabase conectado. Rodar `npx prisma db seed` para ativar login.**
-
----
-
-## Etapa 1 — Setup do Projeto
-
-- [x] Criar projeto Next.js 14+ com TypeScript — Next.js 16.2.9 + React 19 + TS 5
-- [x] Configurar Tailwind CSS — Tailwind v4 (configuração via CSS, sem tailwind.config.ts)
-- [x] Configurar Shadcn/UI — v4.11, detectou Tailwind v4 automaticamente
-- [x] Configurar ESLint + Prettier — `.prettierrc` + `prettier-plugin-tailwindcss`
-- [x] Configurar estrutura de pastas (`src/app`, `services`, `repositories`, `lib`, `types`)
-- [x] Configurar variáveis de ambiente (`.env.local` + `.env.example`)
-- [x] Configurar Prisma ORM — Prisma 7.8, client gerado em `src/generated/prisma`
-- [x] Conectar ao PostgreSQL — Supabase configurado em `.env.local`
-- [x] Migration executada — `npx prisma migrate dev --name init` no Supabase
+**16 de 16 etapas do MVP concluídas. Sistema em produção: https://lfit-performance.vercel.app**
 
 ---
 
-## Etapa 2 — Schema do Banco de Dados
+## Etapa 1 — Setup do Projeto ✅
 
-- [x] Entidade `User` (Personal Trainer)
-- [x] Entidade `Student`
-- [x] Entidade `Anamnesis`
-- [x] Entidade `Exercise` (Biblioteca)
-- [x] Entidade `Workout`
-- [x] Entidade `WorkoutExercise` (exercício dentro do treino)
-- [x] Entidade `WorkoutHistory`
-- [x] Entidade `PhysicalEvaluation`
-- [x] Entidade `BodyMeasurement`
-- [x] Entidade `EvolutionPhoto`
-- [x] Entidade `Comment`
-- [x] Entidade `Goal`
-- [x] Entidade `ScheduleEvent`
-- [x] Entidade `Notification`
-- [x] Entidade `WeightRecord`
-- [x] Entidade `LoadRecord`
-- [x] Entidade `Payment`
-- [x] `prisma generate` executado — client gerado em `src/generated/prisma`
-- [x] Rodar primeira migration — `npx prisma migrate dev --name init` executado no Supabase
-- [x] Criar seed (`prisma/seed.ts`) — usuário admin + 33 exercícios globais
-- [ ] **`npx prisma db seed` — RODAR PARA ATIVAR O LOGIN** (admin@lfit.com / lfit@2024)
+- [x] Next.js 16.2.9 + React 19 + TypeScript 5 + Tailwind v4
+- [x] Shadcn/UI v4 com base-ui
+- [x] ESLint + Prettier + `prettier-plugin-tailwindcss`
+- [x] Estrutura de pastas: `services/`, `repositories/`, `lib/`, `types/`, `components/`
+- [x] `.env.local` + `.env.example` configurados com JWT secrets seguros
+- [x] Prisma 7.8 com client gerado em `src/generated/prisma`
+- [x] PostgreSQL via Supabase — conectado e migration executada
+- [x] `npm run dev:r` — reinicia servidor matando porta 3000 automaticamente
+- [x] `postinstall: prisma generate` — Prisma client gerado no build do Vercel
 
 ---
 
-## Etapa 3 — Autenticação (Personal Trainer)
+## Etapa 2 — Schema do Banco ✅
 
-- [x] Rota `POST /api/auth/login` — gerar JWT + Refresh Token (cookies httpOnly)
-- [x] Rota `POST /api/auth/refresh` — renovar access token silenciosamente
-- [x] Middleware de autenticação — protege rotas trainer e student, renova token automaticamente
-- [x] Página de Login (`/login`) — formulário com react-hook-form + Zod
-- [x] Persistência do token (cookie httpOnly `lfit_access` + `lfit_refresh`)
-- [x] Logout (`POST /api/auth/logout` limpa os dois cookies)
-
----
-
-## Etapa 4 — Cadastro de Alunos
-
-- [x] Repository: `student.repository.ts`
-- [x] Service: `student.service.ts`
-- [x] Rota `GET /api/alunos` — listar com filtros (status + search)
-- [x] Rota `POST /api/alunos` — criar aluno
-- [x] Rota `GET /api/alunos/[id]` — buscar aluno com última avaliação e treino ativo
-- [x] Rota `PUT /api/alunos/[id]` — editar aluno
-- [x] Rota `PATCH /api/alunos/[id]/status` — alterar status
-- [x] Página: Listagem de alunos (`/alunos`) com tabela e estado vazio
-- [x] Página: Formulário de criação (`/alunos/novo`)
-- [x] Página: Perfil do aluno (`/alunos/[id]`) com layout e tabs
-- [x] Página: Editar aluno (`/alunos/[id]/editar`)
-- [x] Formulário: dados pessoais, objetivo, status, saúde (StudentForm reutilizável)
-- [x] Upload de foto do aluno (Cloudinary via `/api/upload`)
-- [x] Filtro por status (tabs: Todos / Ativos / Pausados / Inativos)
-- [x] Busca por nome com debounce de 300ms
+- [x] Todos os 11 enums criados
+- [x] Todas as 17 entidades criadas no Prisma schema
+- [x] Migration executada no Supabase (`npx prisma migrate dev --name init`)
+- [x] `prisma/seed.ts` — usuário admin + 33 exercícios globais
+- [x] Seed executado via Supabase MCP — `admin@lfit.com` / `123456`
+- [x] RLS (Row Level Security) habilitado em todas as 18 tabelas via MCP
+- [x] 10 índices de FK adicionados via MCP (performance)
 
 ---
 
-## Etapa 5 — Biblioteca de Exercícios
+## Etapa 3 — Autenticação ✅
 
-- [x] Repository: `exercise.repository.ts`
-- [x] Service: `exercise.service.ts`
-- [x] Rota `GET /api/exercicios` — listar com filtro por grupo muscular + busca
-- [x] Rota `POST /api/exercicios` — criar exercício
-- [x] Rota `PUT /api/exercicios/[id]` — editar exercício
-- [x] Rota `DELETE /api/exercicios/[id]` — remover exercício (apenas próprios)
-- [x] Página: Biblioteca de exercícios (`/biblioteca`) com grid e modal CRUD
-- [x] Filtro por grupo muscular (chips)
-- [x] Campo de vídeo (URL YouTube)
-- [x] Seed com ~33 exercícios globais (todos os grupos musculares)
-- [ ] Upload de imagem do exercício via Cloudinary (sprint de infraestrutura)
-
----
-
-## Etapa 6 — Gestão de Treinos
-
-- [x] Repository: `workout.repository.ts`
-- [x] Service: `workout.service.ts`
-- [x] Rota `GET /api/alunos/[id]/treinos` — treinos do aluno
-- [x] Rota `POST /api/alunos/[id]/treinos` — criar treino
-- [x] Rota `GET /api/treinos/[id]` — treino detalhado com exercícios e histórico
-- [x] Rota `PUT /api/treinos/[id]` — editar treino (salva snapshot no histórico)
-- [x] Rota `DELETE /api/treinos/[id]` — desativar treino
-- [x] Rota `POST /api/treinos/[id]/duplicar` — duplicar treino
-- [x] Adicionar exercícios ao treino (WorkoutExercise via modal de busca)
-- [x] Reordenar exercícios com botões ▲▼
-- [x] Salvar histórico de alterações (WorkoutHistory com snapshot JSON)
-- [x] Página: Listagem de treinos (`/alunos/[id]/treinos`) — ativos e inativos
-- [x] Página: Formulário de treino (`/novo` e `/[workoutId]/editar`)
-- [x] Página: Detalhe do treino (`/[workoutId]`) com exercícios, histórico e ações
-- [x] Divisão por letra (A–F) com seletor
-- [x] Seleção de exercícios da biblioteca via modal com busca e filtro por grupo muscular
+- [x] `src/lib/auth.ts` — hash, JWT, verify (try-catch retorna null em expirado)
+- [x] `POST /api/auth/login` — gera JWT + Refresh Token em cookies httpOnly
+- [x] `POST /api/auth/refresh` — renovação silenciosa do access token
+- [x] `POST /api/auth/logout` — limpa os dois cookies
+- [x] `src/proxy.ts` — proteção de rotas (Next.js 16, renomeado de middleware.ts)
+  - [x] Fix: `/alunos` não confundido com `/aluno/` (bug crítico corrigido)
+  - [x] Fix: arquivos estáticos (png, jpg, svg…) bypassam o proxy
+- [x] `(auth)/login/page.tsx` — Suspense + Logo LFit Performance
+- [x] `(trainer)/layout.tsx` + `AppSidebar.tsx` com logo, dark/light toggle, badge notificações
+- [x] `src/lib/session.ts` — `requireTrainerSession()` + `requireStudentSession()`
+- [x] JWT secrets seguros gerados e configurados no Vercel
 
 ---
 
-## Etapa 7 — Avaliação Física
+## Etapa 4 — Cadastro de Alunos ✅
 
-- [x] Repository: `evaluation.repository.ts` — CRUD + findLatestByStudent + upsert de medidas
-- [x] Service: `evaluation.service.ts` — IMC, comparação entre avaliações, lógica de diff
-- [x] Rota `GET /api/alunos/[id]/avaliacoes` — histórico de avaliações
-- [x] Rota `POST /api/alunos/[id]/avaliacoes` — nova avaliação
-- [x] Rota `GET /api/avaliacoes/[id]` — avaliação + anterior + comparação completa
-- [x] Rota `PUT /api/avaliacoes/[id]` — editar avaliação (recalcula IMC)
-- [x] Cálculo automático de IMC em tempo real (frontend) e persistido (backend)
-- [x] Registro de medidas corporais — 11 campos via BodyMeasurement
-- [x] Upload de fotos de evolução — 4 ângulos via Cloudinary (requer credenciais)
-- [x] Comparação entre avaliações — diff colorido (verde/vermelho) em peso, gordura, massa e medidas
-- [x] Página: Listagem de avaliações — timeline com diff de peso entre avaliações
-- [x] Página: Formulário de nova avaliação — 3 seções (dados, medidas, fotos)
-- [x] Página: Detalhe com comparação lado a lado — cards de diff + fotos comparativas
-- [x] Página: Editar avaliação — form pré-preenchido
+- [x] `student.repository.ts` + `student.service.ts`
+- [x] `GET/POST /api/alunos`, `GET/PUT /api/alunos/[id]`, `PATCH /api/alunos/[id]/status`
+- [x] `StudentForm.tsx` — CRUD com null guard nos Selects do base-ui (bug corrigido)
+- [x] `StudentFilters.tsx` — busca por nome com debounce
+- [x] Páginas: listagem, novo, perfil, editar + tabs (Visão Geral, Treinos, Avaliações, Evolução, Comentários, Metas, Anamnese)
+- [x] Upload de foto via Cloudinary (`/api/upload`) — requer credenciais
 
 ---
 
-## Etapa 8 — Evolução do Aluno
+## Etapa 5 — Biblioteca de Exercícios ✅
 
-- [x] Página: Evolução (`/alunos/[id]/evolucao`)
-- [x] Gráfico: Peso + IMC ao longo do tempo (WeightChart — Recharts)
-- [x] Gráfico: % Gordura + Massa Muscular (BodyCompositionChart — dois eixos Y)
-- [x] Gráfico: Medidas corporais com seletor de qual exibir (MeasurementsChart)
-- [x] Indicador de status (Evoluindo / Estável / Regressão) com lógica de threshold
-- [x] Cards de resumo: variação total desde a 1ª avaliação (peso, gordura, massa)
-- [x] Service: `evolution.service.ts` — agrega dados e calcula indicador
-- [x] Rota `GET /api/alunos/[id]/evolucao` — dados formatados para os gráficos
-- [x] Estado vazio com CTA para registrar primeira avaliação
-- [ ] Comparação lado a lado de fotos na evolução (disponível no detalhe da avaliação)
+- [x] `exercise.repository.ts` + `exercise.service.ts`
+- [x] CRUD completo via `/api/exercicios`
+- [x] `ExerciseGrid.tsx` — grid com modal CRUD, filtro por grupo muscular, player YouTube
+- [x] 33 exercícios globais no seed
+- [ ] **Upload de imagem do exercício via Cloudinary** — campo URL existe, upload direto pendente
 
 ---
 
-## Etapa 9 — Dashboard
+## Etapa 6 — Gestão de Treinos ✅
 
-- [x] Rota `GET /api/dashboard` — dados agregados
-- [x] Card: Total de alunos
-- [x] Card: Alunos ativos / pausados / inativos
-- [x] Card: Treinos vencidos (lista clicável)
-- [x] Lista: Alunos com avaliação vencida (> 30 dias)
-- [x] Lista: Agenda da semana (próximos 7 dias)
-- [x] Estado vazio: banner boas-vindas sem alunos
-- [x] Estado positivo: banner "tudo em dia"
-- [ ] Gráfico: Evolução geral dos alunos (Sprint futura)
+- [x] `workout.repository.ts` + `workout.service.ts`
+- [x] Rotas CRUD + duplicar treino
+- [x] `WorkoutForm.tsx` — seleção de exercícios, séries/reps/carga, reordenação ▲▼
+- [x] Histórico de alterações com snapshot JSON
+- [x] Páginas: listagem, novo, detalhe, editar
 
 ---
 
-## Etapa 10 — Comentários e Acompanhamento
+## Etapa 7 — Avaliação Física ✅
 
-- [ ] Repository: `comment.repository.ts`
-- [ ] Service: `comment.service.ts`
-- [ ] Rota `GET /api/alunos/[id]/comentarios`
-- [ ] Rota `POST /api/alunos/[id]/comentarios`
-- [ ] Rota `DELETE /api/comentarios/[id]`
-- [ ] Página: Comentários do aluno (`/alunos/[id]/comentarios`)
-- [ ] Filtro por tipo (observação, feedback, lesão, adaptação, desconforto)
-- [ ] Organização por data
-
----
-
-## Etapa 11 — Agenda
-
-- [x] Repository: `schedule.repository.ts` — criado na Sprint 3 (dashboard)
-- [ ] Service: `schedule.service.ts`
-- [ ] Rota `GET /api/agenda`
-- [ ] Rota `POST /api/agenda`
-- [ ] Rota `PUT /api/agenda/[id]`
-- [ ] Rota `DELETE /api/agenda/[id]`
-- [ ] Página: Agenda em calendário mensal (`/agenda`)
-- [ ] Tipos de evento: avaliação, renovação de treino, consulta, disponibilidade
+- [x] `evaluation.repository.ts` + `evaluation.service.ts`
+- [x] Rotas CRUD de avaliações
+- [x] Cálculo automático de IMC (frontend + backend)
+- [x] 11 medidas corporais (BodyMeasurement)
+- [x] Upload de 4 fotos de evolução via Cloudinary (requer credenciais)
+- [x] Comparação automática entre avaliações — diff colorido
+- [x] Páginas: listagem, nova avaliação, detalhe, editar
 
 ---
 
-## Etapa 12 — Notificações
+## Etapa 8 — Evolução do Aluno ✅
 
-- [ ] Repository: `notification.repository.ts`
-- [ ] Service: `notification.service.ts`
-- [ ] Rota `GET /api/notificacoes`
-- [ ] Rota `PATCH /api/notificacoes/[id]/lida`
-- [ ] Geração automática: avaliação vencida (> 30 dias sem avaliação)
-- [ ] Geração automática: treino expirado
-- [ ] Geração automática: aluno sem atualização (configurável)
-- [ ] Geração automática: aniversário do aluno
-- [ ] Sino de notificações no header com badge de não lidas
-- [ ] Página: Central de notificações (`/notificacoes`)
+- [x] `evolution.service.ts` + `GET /api/alunos/[id]/evolucao`
+- [x] `WeightChart.tsx`, `BodyCompositionChart.tsx`, `MeasurementsChart.tsx` (Recharts)
+- [x] Indicador Evoluindo / Estável / Regressão
+- [x] Cards de variação total desde a 1ª avaliação
 
 ---
 
-## Etapa 13 — Área do Aluno
+## Etapa 9 — Dashboard ✅
 
-- [x] Auth separada para aluno — JWT com `role: 'student'` e `sub: studentId`
-- [x] Rota `POST /api/auth/aluno/login` — autentica via `Student.email + passwordHash`
-- [x] Middleware já protege `/aluno/**` e valida `role: 'student'`
-- [x] `requireStudentSession()` em `session.ts`
-- [x] Página: Login do aluno (`/aluno/login`) — dark theme mobile-first
-- [x] Layout com bottom navigation (Treino / Evolução / Avaliações)
-- [x] Página: Treino atual (`/aluno/treino`)
-  - [x] Tabs por divisão (A, B, C...)
-  - [x] Cards de exercício com séries, reps, descanso, carga sugerida
-  - [x] Player YouTube inline (toggle mostrar/fechar)
-  - [x] Registro de carga com feedback visual (botão OK → ✓ verde)
-  - [x] Exibe última carga registrada por exercício
-- [x] Página: Evolução (`/aluno/evolucao`)
-  - [x] Peso atual em destaque
-  - [x] Registrar peso corporal (WeightRecord) inline
-  - [x] Gráfico de peso (combina PhysicalEvaluation + WeightRecord)
-  - [x] Cards de % gordura e massa muscular da última avaliação
-- [x] Página: Avaliações (`/aluno/avaliacoes`) — histórico completo somente leitura
-- [x] Repositórios: `load.repository.ts`, `weight.repository.ts`
-- [x] Rotas: `/api/aluno/treino`, `/api/aluno/cargas`, `/api/aluno/peso`, `/api/aluno/evolucao`, `/api/aluno/avaliacoes`
+- [x] `dashboard.service.ts` + `GET /api/dashboard` (com `withRetry`)
+- [x] Redesign premium: MetricChips + layout 2/3+1/3 + hierarquia visual
+- [x] Alertas com borda esquerda colorida (amber = avaliações, vermelho = treinos)
+- [x] Agenda da semana agrupada por dia
+- [x] 3 estados: onboarding, all-clear, alertas pendentes
+- [x] `error.tsx` — error boundary com "Tentar novamente" e digest visível
+- [x] Retry com backoff (3 tentativas) para cold start do Prisma
 
 ---
 
-## Etapa 14 — Relatórios PDF
+## Etapa 10 — Comentários e Acompanhamento ✅
 
-- [x] Configurar PDFKit + helpers base (`src/lib/pdf.ts`) — header, footer, grid de campos, separadores
-- [x] Rota `GET /api/relatorios/avaliacao/[id]` — PDF com dados básicos + medidas corporais
-- [x] Rota `GET /api/relatorios/treino/[id]` — PDF com todos os exercícios e parâmetros
-- [x] Rota `GET /api/relatorios/aluno/[id]` — PDF com dados pessoais + última avaliação + treinos
-- [x] Rota `GET /api/relatorios/alunos-ativos` — tabela paginada de todos os alunos ativos
-- [x] `report.service.ts` — 4 funções geradoras com dados do Prisma + PDFKit
-- [x] Página: Central de relatórios (`/relatorios`) — select de aluno + 4 botões de download
+- [x] `comment.repository.ts` + `comment.service.ts`
+- [x] `GET/POST /api/alunos/[id]/comentarios`, `DELETE /api/comentarios/[id]`
+- [x] `ComentariosClient.tsx` — filtro por tipo, formulário inline, exclusão
+- [x] deleteComment retorna 404 quando comentário não existe
 
 ---
 
-## Etapa 15 — Sistema de Metas
+## Etapa 11 — Agenda ✅
 
-- [ ] Repository: `goal.repository.ts`
-- [ ] Service: `goal.service.ts`
-- [ ] Rota `GET /api/alunos/[id]/metas`
-- [ ] Rota `POST /api/alunos/[id]/metas`
-- [ ] Rota `PUT /api/metas/[id]`
-- [ ] Barra de progresso automática (currentValue / targetValue)
-- [ ] Marcar meta como atingida
-- [ ] Exibir metas no perfil do aluno
+- [x] `schedule.repository.ts` + `schedule.service.ts`
+- [x] `GET/POST /api/agenda`, `PUT/DELETE /api/agenda/[id]` (com `withRetry`)
+- [x] IDOR corrigido — DELETE/PUT verificam `trainerId`
+- [x] Calendário mensal interativo com 4 tipos de evento coloridos
+- [x] Seletor de aluno no formulário de evento
 
 ---
 
-## Etapa 16 — Anamnese
+## Etapa 12 — Notificações ✅
 
-- [ ] Rota `GET /api/alunos/[id]/anamnese`
-- [ ] Rota `POST /api/alunos/[id]/anamnese`
-- [ ] Rota `PUT /api/alunos/[id]/anamnese`
-- [ ] Formulário de anamnese completo
-- [ ] Exibir anamnese no perfil do aluno
-
----
-
-## Etapa 17 — Controle Financeiro (Opcional)
-
-- [ ] Repository: `payment.repository.ts`
-- [ ] Service: `payment.service.ts`
-- [ ] Rota `GET /api/pagamentos`
-- [ ] Rota `POST /api/pagamentos`
-- [ ] Rota `PATCH /api/pagamentos/[id]` — marcar como pago
-- [ ] Listagem de inadimplentes
-- [ ] Alerta de vencimento próximo
-- [ ] Relatório financeiro mensal
+- [x] `notification.repository.ts` + `notification.service.ts`
+- [x] `generateNotifications()` — 4 tipos: avaliação vencida, treino vencido, sem update, aniversário (UTC-safe)
+- [x] `GET /api/notificacoes` (com `withRetry`), `PATCH /api/notificacoes/[id]/lida`, `PATCH lidas-todas`
+- [x] Badge vermelho no sidebar com contagem de não lidas
+- [x] Geração automática no login em background
+- [x] `NotificacoesClient.tsx` + página central
 
 ---
 
-## Etapa 18 — IA para Evolução (Diferencial)
+## Etapa 13 — Área do Aluno ✅
 
-- [ ] Integração com API de IA (Claude / OpenAI)
+- [x] `POST /api/auth/aluno/login` + proxy com role 'student'
+- [x] `load.repository.ts` + `weight.repository.ts`
+- [x] Todas as rotas `/api/aluno/*`
+- [x] Login do aluno com Logo LFit + Suspense
+- [x] Treino: tabs por divisão, player YouTube, registro de carga
+- [x] Evolução: gráfico de peso, registro inline, cards de composição
+- [x] Avaliações: histórico somente leitura
+
+---
+
+## Etapa 14 — Relatórios PDF ✅
+
+- [x] `pdf.ts` + `report.service.ts`
+- [x] 4 relatórios: avaliação, treino, histórico do aluno, alunos ativos
+- [x] `ReportsClient.tsx` + página central com download
+
+---
+
+## Etapa 15 — Sistema de Metas ✅
+
+- [x] `goal.repository.ts` + `goal.service.ts`
+- [x] CRUD + marcar como atingida + DELETE
+- [x] Barras de progresso, prazo com countdown, ícone de troféu
+
+---
+
+## Etapa 16 — Anamnese ✅
+
+- [x] `GET/POST/PUT /api/alunos/[id]/anamnese` (upsert)
+- [x] Formulário completo com todos os 10 campos do DATABASE.md
+
+---
+
+## Etapa 17 — Controle Financeiro ⚪ (Opcional)
+
+- [ ] `payment.repository.ts` + `payment.service.ts`
+- [ ] Rotas CRUD `/api/pagamentos`
+- [ ] Listagem de inadimplentes + alertas de vencimento
+- **Nota:** Schema `Payment` já existe no banco com RLS ativo
+
+---
+
+## Etapa 18 — IA para Evolução ⚪ (Opcional)
+
+- [ ] Integração com Claude API
 - [ ] Análise automática de progresso entre avaliações
-- [ ] Geração de resumo textual da evolução do aluno
-- [ ] Exibir insight na tela de evolução
+- [ ] Insight textual na tela de evolução
+- **Nota:** MCP Supabase instalado — facilita contexto para queries de IA
 
 ---
 
-## Infraestrutura & Deploy
+## Design & UX ✅
 
-- [x] Supabase configurado como banco de dados em produção
-- [x] Migration executada — todas as 17 tabelas criadas
-- [ ] `npx prisma db seed` — criar usuário admin + 33 exercícios
-- [ ] Cloudinary — configurar CLOUDINARY_CLOUD_NAME, API_KEY, API_SECRET
-- [ ] JWT secrets — trocar para valores seguros (32+ chars)
-- [ ] Deploy na Vercel — variáveis de ambiente configuradas no painel
-- [ ] Testes de smoke em produção
+- [x] Dark/Light mode com `ThemeProvider.tsx` + localStorage + FOUC prevenido
+- [x] Vermelho como cor primária (oklch) em modo claro e escuro
+- [x] Logo LFit Performance (`public/logo.png`) no login trainer, login aluno e sidebar
+- [x] Sidebar com neon glow vermelho, logo no topo
+- [x] Dashboard redesenhado — hierarquia, MetricChips, borda esquerda colorida
+- [x] Dark mode overrides para classes Tailwind hardcoded
+- [x] `error.tsx` — boundary com UI graciosa + digest + botões de retry
+
+---
+
+## Deploy & Infraestrutura ✅
+
+- [x] Supabase: banco PostgreSQL na região us-east-1, 17 tabelas
+- [x] RLS habilitado em todas as 18 tabelas
+- [x] 10 índices de FK adicionados para performance
+- [x] JWT secrets seguros (64 chars base64) no Vercel
+- [x] Vercel MCP instalado no Claude Code
+- [x] Supabase MCP instalado no Claude Code
+- [x] Chrome DevTools MCP instalado no Claude Code
+- [x] GitHub: https://github.com/EricAugusto93/LFIT-Perfomance.git
+- [x] Vercel: https://lfit-performance.vercel.app
+- [x] Credenciais: `admin@lfit.com` / `123456`
+- [x] `prisma.ts` otimizado para serverless (cache global + pool max=1 + timeouts)
+- [x] `with-retry.ts` — helper de retry com backoff para todas as rotas críticas
+- [x] Bugs corrigidos em produção:
+  - [x] proxy.ts: `/alunos` redirecionava para `/dashboard`
+  - [x] proxy.ts: arquivos estáticos (logo.png) redirecionavam para login
+  - [x] login: Suspense para `useSearchParams()` (trainer + aluno)
+  - [x] `postinstall: prisma generate` para build no Vercel
+  - [x] Cold start Prisma: pool otimizado + retry automático
+
+---
+
+## Cloudinary — Uploads 🟡
+
+- [ ] **Criar conta em cloudinary.com** (gratuita)
+- [ ] **Configurar variáveis no Vercel** (`Settings → Environment Variables`):
+  - `CLOUDINARY_CLOUD_NAME`
+  - `CLOUDINARY_API_KEY`
+  - `CLOUDINARY_API_SECRET`
+- **Impacto sem Cloudinary:**
+  - Upload de foto de aluno → erro silencioso (aluno criado sem foto)
+  - Upload de fotos de avaliação → erro silencioso
+  - Upload de imagem de exercício → não implementado de qualquer forma
 
 ---
 
@@ -326,7 +275,8 @@
 
 | Símbolo | Significado |
 |---------|-------------|
-| `[ ]`   | Não iniciado |
-| `[~]`   | Em andamento |
-| `[x]`   | Concluído |
-| `[!]`   | Bloqueado / problema |
+| `[x]` | Concluído |
+| `[ ]` | Pendente |
+| ✅ | Etapa completa |
+| 🟡 | Parcial / requer configuração externa |
+| ⚪ | Opcional / fora do MVP |
