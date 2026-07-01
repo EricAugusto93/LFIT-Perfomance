@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { requireTrainerSession } from '@/lib/session'
 import { generateEvaluationPDF } from '@/services/report.service'
+import { withRetry } from '@/lib/with-retry'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -8,7 +9,7 @@ export async function GET(_request: NextRequest, { params }: Params) {
   try {
     const session = await requireTrainerSession()
     const { id } = await params
-    const buffer = await generateEvaluationPDF(id, session.sub)
+    const buffer = await withRetry(() => generateEvaluationPDF(id, session.sub))
 
     return new Response(new Uint8Array(buffer), {
       headers: {

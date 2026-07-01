@@ -1,10 +1,11 @@
 import { requireTrainerSession } from '@/lib/session'
 import { generateActiveStudentsPDF } from '@/services/report.service'
+import { withRetry } from '@/lib/with-retry'
 
 export async function GET() {
   try {
     const session = await requireTrainerSession()
-    const buffer = await generateActiveStudentsPDF(session.sub)
+    const buffer = await withRetry(() => generateActiveStudentsPDF(session.sub))
 
     return new Response(new Uint8Array(buffer), {
       headers: {
