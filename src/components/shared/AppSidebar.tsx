@@ -59,13 +59,13 @@ export function AppSidebar() {
       />
 
       {/* ── Logo ───────────────────────────────────────────────── */}
-      <div className="relative z-10 flex h-[72px] shrink-0 items-center justify-center border-b border-sidebar-border px-4">
+      <div className="relative z-10 flex h-[84px] shrink-0 items-center justify-center border-b border-sidebar-border px-4">
         <Image
           src="/logo.png"
           alt="LFit Performance"
-          width={120}
-          height={48}
-          className="object-contain"
+          width={72}
+          height={72}
+          className="rounded-xl object-contain"
           priority
         />
       </div>
